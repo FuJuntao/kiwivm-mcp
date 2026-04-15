@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
@@ -24,16 +24,10 @@ function main() {
   const client = new KiwiVMClient({ veid, apiKey });
   const tools = createAllTools(client);
 
-  const server = new Server(
-    { name: "kiwivm-mcp", version: "0.1.0" },
-    { capabilities: { tools: {} } },
-  );
+  const server = new McpServer({ name: "kiwivm-mcp", version: "0.1.0" });
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map((t) => t.tool),
-  }));
-
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  // Register tool request handlers on the underlying Server
+  server.server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const toolDef = tools.find((t) => t.tool.name === request.params.name);
     if (!toolDef) {
       throw new Error(`Unknown tool: ${request.params.name}`);
@@ -56,8 +50,11 @@ function main() {
     }
   });
 
-  const transport = new StdioServerTransport();
-  server.connect(transport).catch(console.error);
+  server.server.setRequestHandler(ListToolsRequestSchema, async () => ({
+    tools: tools.map((t) => t.tool),
+  }));
+
+  server.connect(new StdioServerTransport()).catch(console.error);
 }
 
 main();
