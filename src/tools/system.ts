@@ -49,31 +49,30 @@ export function createSystemTools(client: KiwiVMClient): ToolDefinition[] {
           required: ["action"],
         },
       },
-      handler: async (args: {
-        action: string;
-        new_hostname?: string;
-        ip?: string;
-        ptr?: string;
-        ssh_keys?: string;
-        os?: string;
-      }) => {
-        switch (args.action) {
+      handler: async (args: Record<string, unknown>) => {
+        const action = args["action"] as string;
+        const newHostname = args["new_hostname"] as string | undefined;
+        const ip = args["ip"] as string | undefined;
+        const ptr = args["ptr"] as string | undefined;
+        const sshKeys = args["ssh_keys"] as string | undefined;
+        const os = args["os"] as string | undefined;
+        switch (action) {
           case "setHostname":
-            return client.call("setHostname", { newHostname: args.new_hostname });
+            return client.call("setHostname", { newHostname });
           case "setPTR":
-            return client.call("setPTR", { ip: args.ip, ptr: args.ptr });
+            return client.call("setPTR", { ip, ptr });
           case "resetRootPassword":
             return client.call("resetRootPassword");
           case "getSSHKeys":
             return client.call("getSshKeys");
           case "updateSSHKeys":
-            return client.call("updateSshKeys", { sshKeys: args.ssh_keys });
+            return client.call("updateSshKeys", { sshKeys });
           case "getAvailableOS":
             return client.call("getAvailableOS");
           case "reinstallOS":
-            return client.call("reinstallOS", { os: args.os });
+            return client.call("reinstallOS", { os });
           default:
-            throw new Error(`Unknown system action: ${args.action}`);
+            throw new Error(`Unknown system action: ${action}`);
         }
       },
     },
