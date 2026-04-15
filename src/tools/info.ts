@@ -1,8 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import type { KiwiVMClient } from "../client.js";
-import type { LiveServiceInfo, ServiceInfo } from "../types.js";
-import { callApi } from "./utils.js";
+import type { KiwiVMClient } from "../client.ts";
+import type { LiveServiceInfo, ServiceInfo } from "../types.ts";
+import { callApi } from "./utils.ts";
 
 export function createInfoTools(server: McpServer, client: KiwiVMClient): void {
   server.registerTool(

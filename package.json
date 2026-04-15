@@ -2,16 +2,33 @@
   "name": "kiwivm-mcp",
   "version": "0.1.0",
   "description": "MCP server for managing KiwiVM VPS instances",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "kiwivm-mcp": "src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FuJuntao/kiwivm-mcp"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src/**/*.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
   },
   "scripts": {
     "lint": "biome lint src",
     "format": "biome format --write src",
     "check": "biome check src",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.3"

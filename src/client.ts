@@ -1,5 +1,5 @@
-import type { KiwiVMResponse } from "./types.js";
-import { KiwiVMError } from "./types.js";
+import type { KiwiVMResponse } from "./types.ts";
+import { KiwiVMError } from "./types.ts";
 
 const API_BASE = "https://api.64clouds.com/v1";
 

@@ -2,8 +2,8 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { KiwiVMClient } from "./client.js";
-import { createAllTools } from "./tools/index.js";
+import { KiwiVMClient } from "./client.ts";
+import { createAllTools } from "./tools/index.ts";
 
 function main() {
   const veid = process.env["KIWIVM_VEID"];

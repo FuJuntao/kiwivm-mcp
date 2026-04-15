@@ -4,23 +4,24 @@ MCP server for managing KiwiVM (64clouds/BuyVM) VPS instances via Claude Code.
 
 ## Setup
 
-### Environment Variables
+### 1. Environment Variables
 
 ```bash
 export KIWIVM_VEID=12345678
 export KIWIVM_API_KEY=your_api_key_here
 ```
 
-Get your VEID and API key from the KiwiVM Control Panel -> REST API page.
+Get your VEID and API key from the KiwiVM Control Panel → REST API page.
 
-### Local Development
+### 2. Install
 
 ```bash
-npm install
-KIWIVM_VEID=... KIWIVM_API_KEY=... node src/index.ts
+npx kiwivm-mcp
 ```
 
-### Claude Code Configuration
+Requires **Node.js >= 24** (native TypeScript support).
+
+### 3. Claude Code Configuration
 
 Add to your Claude Code settings:
 
@@ -28,8 +29,28 @@ Add to your Claude Code settings:
 {
   "mcpServers": {
     "kiwivm": {
-      "command": "node",
-      "args": ["/path/to/kiwivm-mcp/src/index.ts"],
+      "command": "npx",
+      "args": ["kiwivm-mcp"],
+      "env": {
+        "KIWIVM_VEID": "12345678",
+        "KIWIVM_API_KEY": "your_key"
+      }
+    }
+  }
+}
+```
+
+Or with global install:
+
+```bash
+npm install -g kiwivm-mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "kiwivm": {
+      "command": "kiwivm-mcp",
       "env": {
         "KIWIVM_VEID": "12345678",
         "KIWIVM_API_KEY": "your_key"

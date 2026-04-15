@@ -1,8 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import type { KiwiVMClient } from "../client.js";
-import type { Backup, KiwiVMResponse } from "../types.js";
-import { callApi } from "./utils.js";
+import type { KiwiVMClient } from "../client.ts";
+import type { Backup, KiwiVMResponse } from "../types.ts";
+import { callApi } from "./utils.ts";
 
 interface BackupListResponse extends KiwiVMResponse {
   backups: Backup[];

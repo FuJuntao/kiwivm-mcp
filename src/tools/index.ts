@@ -1,13 +1,13 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { KiwiVMClient } from "../client.js";
-import { createAdminTools } from "./admin.js";
-import { createBackupTools } from "./backups.js";
-import { createInfoTools } from "./info.js";
-import { createMonitoringTools } from "./monitoring.js";
-import { createNetworkTools } from "./network.js";
-import { createPowerTools } from "./power.js";
-import { createSnapshotTools } from "./snapshots.js";
-import { createSystemTools } from "./system.js";
+import type { KiwiVMClient } from "../client.ts";
+import { createAdminTools } from "./admin.ts";
+import { createBackupTools } from "./backups.ts";
+import { createInfoTools } from "./info.ts";
+import { createMonitoringTools } from "./monitoring.ts";
+import { createNetworkTools } from "./network.ts";
+import { createPowerTools } from "./power.ts";
+import { createSnapshotTools } from "./snapshots.ts";
+import { createSystemTools } from "./system.ts";
 
 export function createAllTools(server: McpServer, client: KiwiVMClient): void {
   createPowerTools(server, client);

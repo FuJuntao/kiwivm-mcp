@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { KiwiVMClient } from "./client.js";
-import { KiwiVMError } from "./types.js";
+import { KiwiVMClient } from "./client.ts";
+import { KiwiVMError } from "./types.ts";
 
 global.fetch = vi.fn();
 

@@ -1,5 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { KiwiVMError } from "../types.js";
+import { KiwiVMError } from "../types.ts";
 
 /**
  * Wraps an API call, formatting the result or error as a CallToolResult.
