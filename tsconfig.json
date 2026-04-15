@@ -1,6 +1,12 @@
 {
-  "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/node-lts/tsconfig", "@tsconfig/node-ts/tsconfig"],
+  "extends": [
+    "@tsconfig/strictest/tsconfig",
+    "@tsconfig/node-lts/tsconfig",
+    "@tsconfig/node-ts/tsconfig"
+  ],
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
     "noEmit": true,
     "outDir": "dist",
     "types": ["node", "vitest/globals"]

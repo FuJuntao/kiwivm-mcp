@@ -1,11 +1,11 @@
 {
   "name": "kiwivm-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for managing KiwiVM VPS instances",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "kiwivm-mcp": "src/index.ts"
+    "kiwivm-mcp": "dist/index.mjs"
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,8 @@
     "access": "public"
   },
   "files": [
-    "src/**/*.ts",
+    "dist",
+    "src",
     "LICENSE",
     "README.md"
   ],
@@ -28,7 +29,8 @@
     "check": "biome check src",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run typecheck"
+    "build": "tsdown",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.3"
@@ -39,6 +41,7 @@
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/strictest": "^2.0.8",
     "@types/node": "^24.0.0",
+    "tsdown": "^0.21.8",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
   }
