@@ -44,12 +44,12 @@ Add to your Claude Code settings:
 | Tool | Description |
 |------|-------------|
 | `kiwivm_power` | Start, stop, restart, or force kill the VPS |
-| `kiwivm_service_info` | Get plan details, IPs, OS, bandwidth. Optionally include live status |
-| `kiwivm_snapshot` | Create, list, delete, restore, export/import snapshots |
-| `kiwivm_backup` | List automatic backups, copy backup to snapshot |
-| `kiwivm_system` | Set hostname, PTR/rDNS, SSH keys, root password, reinstall OS |
-| `kiwivm_network` | Manage IPv6 subnets and private IP addresses |
-| `kiwivm_monitoring` | View usage stats, audit log, API rate limit status |
+| `kiwivm_service_info` | Get plan details, IPs, OS, and bandwidth. Set `include_live=true` for live CPU, RAM, disk, uptime (may take 15s) |
+| `kiwivm_snapshot` | Create, list, delete, restore, toggle sticky, export/import snapshots |
+| `kiwivm_backup` | List automatic backups, copy backup to restorable snapshot |
+| `kiwivm_system` | Set hostname, PTR/rDNS, reset root password, manage SSH keys, list/reinstall OS templates |
+| `kiwivm_network` | Add/delete IPv6 /64 subnets, assign/delete/list private IP addresses |
+| `kiwivm_monitoring` | View raw usage stats, audit log, API rate limit status |
 | `kiwivm_admin` | View suspensions/policy violations, unsuspend, resolve violations |
 
 ## License
