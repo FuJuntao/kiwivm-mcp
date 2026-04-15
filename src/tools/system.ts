@@ -1,5 +1,5 @@
-import type { ToolDefinition } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { ToolDefinition } from "../types.js";
 
 export function createSystemTools(client: KiwiVMClient): ToolDefinition[] {
   return [
@@ -39,11 +39,13 @@ export function createSystemTools(client: KiwiVMClient): ToolDefinition[] {
             },
             ssh_keys: {
               type: "string",
-              description: "SSH public key(s), one per line (for updateSSHKeys)",
+              description:
+                "SSH public key(s), one per line (for updateSSHKeys)",
             },
             os: {
               type: "string",
-              description: "OS template name (for reinstallOS, get from getAvailableOS first)",
+              description:
+                "OS template name (for reinstallOS, get from getAvailableOS first)",
             },
           },
           required: ["action"],

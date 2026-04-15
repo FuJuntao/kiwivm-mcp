@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { KiwiVMClient } from "./client.js";
 import { KiwiVMError } from "./types.js";
 
@@ -41,9 +41,8 @@ describe("KiwiVMClient", () => {
 
     await client.call("snapshot/create", { description: "test" });
 
-    const body = (
-      vi.mocked(fetch).mock.calls[0]![1] as RequestInit
-    ).body as URLSearchParams;
+    const body = (vi.mocked(fetch).mock.calls[0]![1] as RequestInit)
+      .body as URLSearchParams;
     expect(body.get("description")).toBe("test");
   });
 

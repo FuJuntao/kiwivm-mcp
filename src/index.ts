@@ -7,15 +7,17 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { KiwiVMClient } from "./client.js";
-import { KiwiVMError } from "./types.js";
 import { createAllTools } from "./tools/index.js";
+import { KiwiVMError } from "./types.js";
 
 function main() {
   const veid = process.env["KIWIVM_VEID"];
   const apiKey = process.env["KIWIVM_API_KEY"];
 
   if (!veid || !apiKey) {
-    console.error("Error: KIWIVM_VEID and KIWIVM_API_KEY environment variables are required");
+    console.error(
+      "Error: KIWIVM_VEID and KIWIVM_API_KEY environment variables are required",
+    );
     process.exit(1);
   }
 
@@ -45,7 +47,8 @@ function main() {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
     } catch (error) {
-      const message = error instanceof KiwiVMError ? error.message : String(error);
+      const message =
+        error instanceof KiwiVMError ? error.message : String(error);
       return {
         content: [{ type: "text", text: `Error: ${message}` }],
         isError: true,

@@ -1,5 +1,5 @@
-import type { ToolDefinition } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { ToolDefinition } from "../types.js";
 
 const ACTIONS = ["start", "stop", "restart", "kill"] as const;
 
@@ -8,7 +8,8 @@ export function createPowerTools(client: KiwiVMClient): ToolDefinition[] {
     {
       tool: {
         name: "kiwivm_power",
-        description: "Control VPS power state (start, stop, restart, or force kill)",
+        description:
+          "Control VPS power state (start, stop, restart, or force kill)",
         inputSchema: {
           type: "object",
           properties: {

@@ -1,5 +1,5 @@
-import type { ToolDefinition } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { ToolDefinition } from "../types.js";
 
 export function createAdminTools(client: KiwiVMClient): ToolDefinition[] {
   return [
@@ -24,7 +24,8 @@ export function createAdminTools(client: KiwiVMClient): ToolDefinition[] {
             },
             record_id: {
               type: "string",
-              description: "Record ID (required for unsuspend and resolvePolicyViolation)",
+              description:
+                "Record ID (required for unsuspend and resolvePolicyViolation)",
             },
           },
           required: ["action"],
@@ -38,9 +39,13 @@ export function createAdminTools(client: KiwiVMClient): ToolDefinition[] {
           case "getPolicyViolations":
             return client.call("getPolicyViolations");
           case "unsuspend":
-            return client.call("unsuspend", { recordId: args["record_id"] as string });
+            return client.call("unsuspend", {
+              recordId: args["record_id"] as string,
+            });
           case "resolvePolicyViolation":
-            return client.call("resolvePolicyViolation", { recordId: args["record_id"] as string });
+            return client.call("resolvePolicyViolation", {
+              recordId: args["record_id"] as string,
+            });
           default:
             throw new Error(`Unknown admin action: ${action}`);
         }

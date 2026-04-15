@@ -1,18 +1,27 @@
-import type { ToolDefinition, KiwiVMResponse, Snapshot } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { KiwiVMResponse, Snapshot, ToolDefinition } from "../types.js";
 
 export function createSnapshotTools(client: KiwiVMClient): ToolDefinition[] {
   return [
     {
       tool: {
         name: "kiwivm_snapshot",
-        description: "Manage VPS snapshots: create, list, delete, restore, toggle sticky, export, import",
+        description:
+          "Manage VPS snapshots: create, list, delete, restore, toggle sticky, export, import",
         inputSchema: {
           type: "object",
           properties: {
             action: {
               type: "string",
-              enum: ["create", "list", "delete", "restore", "toggleSticky", "export", "import"],
+              enum: [
+                "create",
+                "list",
+                "delete",
+                "restore",
+                "toggleSticky",
+                "export",
+                "import",
+              ],
               description: "Snapshot action to perform",
             },
             description: {
@@ -21,12 +30,14 @@ export function createSnapshotTools(client: KiwiVMClient): ToolDefinition[] {
             },
             snapshot: {
               type: "string",
-              description: "Filename of the snapshot (delete/restore/export/toggleSticky actions)",
+              description:
+                "Filename of the snapshot (delete/restore/export/toggleSticky actions)",
             },
             sticky: {
               type: "number",
               enum: [0, 1],
-              description: "Set sticky flag (1=sticky, 0=not sticky) for toggleSticky action",
+              description:
+                "Set sticky flag (1=sticky, 0=not sticky) for toggleSticky action",
             },
             source_veid: {
               type: "string",
@@ -47,19 +58,27 @@ export function createSnapshotTools(client: KiwiVMClient): ToolDefinition[] {
               description: args["description"] as string | undefined,
             });
           case "list": {
-            return client.call<KiwiVMResponse & { snapshots: Snapshot[] }>("snapshot/list");
+            return client.call<KiwiVMResponse & { snapshots: Snapshot[] }>(
+              "snapshot/list",
+            );
           }
           case "delete":
-            return client.call("snapshot/delete", { snapshot: args["snapshot"] as string | undefined });
+            return client.call("snapshot/delete", {
+              snapshot: args["snapshot"] as string | undefined,
+            });
           case "restore":
-            return client.call("snapshot/restore", { snapshot: args["snapshot"] as string | undefined });
+            return client.call("snapshot/restore", {
+              snapshot: args["snapshot"] as string | undefined,
+            });
           case "toggleSticky":
             return client.call("snapshot/toggleSticky", {
               snapshot: args["snapshot"] as string | undefined,
               sticky: args["sticky"] as number | undefined,
             });
           case "export":
-            return client.call("snapshot/export", { snapshot: args["snapshot"] as string | undefined });
+            return client.call("snapshot/export", {
+              snapshot: args["snapshot"] as string | undefined,
+            });
           case "import":
             return client.call("snapshot/import", {
               sourceVeid: args["source_veid"] as string | undefined,

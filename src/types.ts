@@ -7,11 +7,7 @@ export class KiwiVMError extends Error {
   public readonly errorCode: number;
   public readonly rawResponse: KiwiVMResponse;
 
-  constructor(
-    message: string,
-    errorCode: number,
-    rawResponse: KiwiVMResponse,
-  ) {
+  constructor(message: string, errorCode: number, rawResponse: KiwiVMResponse) {
     super(message);
     this.name = "KiwiVMError";
     this.errorCode = errorCode;
@@ -35,11 +31,14 @@ export interface ServiceInfo extends KiwiVMResponse {
   data_next_reset?: number;
   ip_addresses?: string[];
   private_ip_addresses?: string[];
-  ip_nullroutes?: Record<string, {
-    nullroute_timestamp: number;
-    nullroute_duration_s: number;
-    log: string;
-  }>;
+  ip_nullroutes?: Record<
+    string,
+    {
+      nullroute_timestamp: number;
+      nullroute_duration_s: number;
+      log: string;
+    }
+  >;
   iso1?: string;
   iso2?: string;
   available_isos?: string[];

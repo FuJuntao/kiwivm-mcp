@@ -7,6 +7,9 @@
     "kiwivm-mcp": "src/index.ts"
   },
   "scripts": {
+    "lint": "biome lint src",
+    "format": "biome format --write src",
+    "check": "biome check src",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
@@ -14,9 +17,10 @@
     "@modelcontextprotocol/sdk": "^1.12.3"
   },
   "devDependencies": {
-    "@tsconfig/strictest": "^2.0.8",
+    "@biomejs/biome": "^2.4.12",
     "@tsconfig/node-lts": "^24.0.0",
     "@tsconfig/node-ts": "^23.6.4",
+    "@tsconfig/strictest": "^2.0.8",
     "@types/node": "^24.0.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"

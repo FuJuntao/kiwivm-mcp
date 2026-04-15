@@ -1,5 +1,5 @@
-import type { ToolDefinition } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { ToolDefinition } from "../types.js";
 
 export function createMonitoringTools(client: KiwiVMClient): ToolDefinition[] {
   return [

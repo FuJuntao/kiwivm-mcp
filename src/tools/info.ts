@@ -1,6 +1,5 @@
-import type { ToolDefinition } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
-import type { LiveServiceInfo, ServiceInfo } from "../types.js";
+import type { LiveServiceInfo, ServiceInfo, ToolDefinition } from "../types.js";
 
 export function createInfoTools(client: KiwiVMClient): ToolDefinition[] {
   return [

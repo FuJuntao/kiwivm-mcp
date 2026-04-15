@@ -1,5 +1,5 @@
-import type { ToolDefinition, Backup, KiwiVMResponse } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { Backup, KiwiVMResponse, ToolDefinition } from "../types.js";
 
 interface BackupListResponse extends KiwiVMResponse {
   backups: Backup[];
@@ -22,7 +22,8 @@ export function createBackupTools(client: KiwiVMClient): ToolDefinition[] {
             },
             backup_token: {
               type: "string",
-              description: "Backup token (required for copyToSnapshot action, from list action)",
+              description:
+                "Backup token (required for copyToSnapshot action, from list action)",
             },
           },
           required: ["action"],

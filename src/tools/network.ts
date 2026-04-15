@@ -1,5 +1,5 @@
-import type { ToolDefinition } from "../types.js";
 import type { KiwiVMClient } from "../client.js";
+import type { ToolDefinition } from "../types.js";
 
 export function createNetworkTools(client: KiwiVMClient): ToolDefinition[] {
   return [
@@ -25,7 +25,8 @@ export function createNetworkTools(client: KiwiVMClient): ToolDefinition[] {
             },
             ip: {
               type: "string",
-              description: "IP address (required for deleteIPv6 and deletePrivateIp, optional for assignPrivateIp)",
+              description:
+                "IP address (required for deleteIPv6 and deletePrivateIp, optional for assignPrivateIp)",
             },
           },
           required: ["action"],
