@@ -22,13 +22,13 @@ describe("KiwiVMClient", () => {
     expect(result.error).toBe(0);
 
     const call = vi.mocked(fetch).mock.calls[0];
-    expect(call![0]).toBe("https://api.64clouds.com/v1/restart");
-    expect((call![1] as RequestInit).method).toBe("POST");
-    expect((call![1] as RequestInit).headers).toEqual({
+    expect(call?.[0]).toBe("https://api.64clouds.com/v1/restart");
+    expect((call?.[1] as RequestInit).method).toBe("POST");
+    expect((call?.[1] as RequestInit).headers).toEqual({
       "Content-Type": "application/x-www-form-urlencoded",
     });
 
-    const body = (call![1] as RequestInit).body as URLSearchParams;
+    const body = (call?.[1] as RequestInit).body as URLSearchParams;
     expect(body.get("veid")).toBe("12345");
     expect(body.get("api_key")).toBe("test-key");
   });
@@ -41,7 +41,7 @@ describe("KiwiVMClient", () => {
 
     await client.call("snapshot/create", { description: "test" });
 
-    const body = (vi.mocked(fetch).mock.calls[0]![1] as RequestInit)
+    const body = (vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit)
       .body as URLSearchParams;
     expect(body.get("description")).toBe("test");
   });

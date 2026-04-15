@@ -92,10 +92,3 @@ export interface Backup {
   md5: string;
   timestamp: number;
 }
-
-import type { Tool } from "@modelcontextprotocol/sdk/types.js";
-
-export interface ToolDefinition {
-  tool: Tool;
-  handler: (args: Record<string, unknown>) => Promise<unknown>;
-}
