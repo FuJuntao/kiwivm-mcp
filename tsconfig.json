@@ -1,0 +1,8 @@
+{
+  "extends": ["@tsconfig/strictest/tsconfig", "@tsconfig/node-lts/tsconfig", "@tsconfig/node-ts/tsconfig"],
+  "compilerOptions": {
+    "noEmit": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}
