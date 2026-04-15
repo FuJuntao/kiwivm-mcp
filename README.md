@@ -7,7 +7,7 @@ MCP server for managing KiwiVM (64clouds/BuyVM) VPS instances via Claude Code.
 ### Environment Variables
 
 ```bash
-export KIWIVM_VEID=1432687
+export KIWIVM_VEID=12345678
 export KIWIVM_API_KEY=your_api_key_here
 ```
 
@@ -31,7 +31,7 @@ Add to your Claude Code settings:
       "command": "node",
       "args": ["/path/to/kiwivm-mcp/src/index.ts"],
       "env": {
-        "KIWIVM_VEID": "1432687",
+        "KIWIVM_VEID": "12345678",
         "KIWIVM_API_KEY": "your_key"
       }
     }
