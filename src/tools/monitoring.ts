@@ -11,7 +11,7 @@ export function createMonitoringTools(
     "kiwivm_monitoring",
     {
       description:
-        "Monitoring and statistics: view raw usage stats, audit log, and API rate limit status",
+        "Detailed monitoring: audit log of API calls and API rate limit status.",
       inputSchema: {
         action: z.enum(["usageStats", "auditLog", "rateLimit"]),
       },

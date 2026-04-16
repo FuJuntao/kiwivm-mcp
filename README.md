@@ -1,6 +1,6 @@
 # kiwivm-mcp
 
-MCP server for managing KiwiVM (64clouds/BuyVM) VPS instances via Claude Code.
+MCP server for managing KiwiVM (64clouds/BuyVM) VPS instances via Claude Code or any MCP-compatible client.
 
 ## Setup
 
@@ -15,11 +15,11 @@ Get your VEID and API key from the KiwiVM Control Panel → REST API page.
 
 ### 2. Install
 
+Install and run directly with npx (requires **Node.js >= 24**):
+
 ```bash
 npx kiwivm-mcp
 ```
-
-Requires **Node.js >= 24** (native TypeScript support).
 
 ### 3. Claude Code Configuration
 
@@ -72,6 +72,23 @@ npm install -g kiwivm-mcp
 | `kiwivm_network` | Add/delete IPv6 /64 subnets, assign/delete/list private IP addresses |
 | `kiwivm_monitoring` | View raw usage stats, audit log, API rate limit status |
 | `kiwivm_admin` | View suspensions/policy violations, unsuspend, resolve violations |
+
+## Development
+
+```bash
+git clone https://github.com/FuJuntao/kiwivm-mcp.git
+cd kiwivm-mcp
+npm install
+```
+
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run tests (vitest) |
+| `npm run typecheck` | Type check (tsc --noEmit) |
+| `npm run build` | Build with tsdown → `dist/index.mjs` |
+| `npm run lint` | Lint with Biome |
+| `npm run format` | Format with Biome |
+| `npm run check` | Lint + format check |
 
 ## License
 

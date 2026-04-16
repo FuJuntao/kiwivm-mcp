@@ -9,7 +9,7 @@ export function createInfoTools(server: McpServer, client: KiwiVMClient): void {
     "kiwivm_service_info",
     {
       description:
-        "Get VPS service information including plan details, IP addresses, OS, and bandwidth usage. " +
+        "Get VPS service information including plan details, IP addresses, OS, and monthly bandwidth usage (plan_monthly_data, data_counter, data_next_reset). " +
         "Set include_live=true for real-time status (CPU, RAM, disk, uptime, screenshot). " +
         "Note: include_live may take up to 15 seconds to complete.",
       inputSchema: {
