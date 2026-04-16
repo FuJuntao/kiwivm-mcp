@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/FuJuntao/kiwivm-mcp"
+    "url": "git+https://github.com/FuJuntao/kiwivm-mcp.git"
   },
   "publishConfig": {
     "access": "public"
