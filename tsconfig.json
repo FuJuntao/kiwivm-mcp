@@ -5,8 +5,6 @@
     "@tsconfig/node-ts/tsconfig"
   ],
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
     "noEmit": true,
     "outDir": "dist",
     "types": ["node", "vitest/globals"]
