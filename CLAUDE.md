@@ -34,6 +34,7 @@ src/tools/            — Tool implementations (Zod schemas + registerTool)
 - **Linting/formatting** — Biome (`npm run lint`, `npm run format`, `npm run check`)
 - **Testing** — vitest, colocated `*.test.ts` files
 - **Build** — tsdown bundler (`npm run build` produces `dist/index.mjs`)
+- **Commits** — follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description` (e.g., `feat(snapshots): add export support`, `fix(info): handle missing bandwidth data`). Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
 
 ## Scripts
 
