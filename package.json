@@ -1,15 +1,15 @@
 {
-  "name": "kiwivm-mcp",
-  "version": "0.1.3",
-  "description": "MCP server for managing KiwiVM VPS instances",
+  "name": "kiwivm-cli",
+  "version": "0.1.0",
+  "description": "CLI for managing KiwiVM (BuyVM) VPS instances",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "kiwivm-mcp": "dist/index.mjs"
+    "kiwivm-cli": "dist/index.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FuJuntao/kiwivm-mcp.git"
+    "url": "git+https://github.com/FuJuntao/kiwivm-cli.git"
   },
   "publishConfig": {
     "access": "public"
@@ -32,9 +32,7 @@
     "build": "tsdown",
     "prepublishOnly": "npm run build"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
     "@tsconfig/node-lts": "^24.0.0",

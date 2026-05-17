@@ -1,24 +1,24 @@
-# kiwivm-mcp
+# kiwivm-cli
 
-MCP server for managing KiwiVM (BuyVM) VPS instances via the 64clouds API.
+CLI tool for managing KiwiVM (BuyVM) VPS instances via the 64clouds API.
 
 ## Architecture
 
 ```
-src/index.ts          — MCP server entry point (stdio transport, McpServer)
+src/index.ts          — CLI entry point (argument parsing, dispatch)
 src/client.ts         — KiwiVM API client (POST to api.64clouds.com/v1)
 src/types.ts          — Shared types: KiwiVMResponse, KiwiVMError, domain interfaces
-src/tools/            — Tool implementations (Zod schemas + registerTool)
+src/commands/         — Command implementations (one module per category)
 ```
 
-### Tool Categories
+### Command Categories
 
 | Module | Purpose |
 |--------|---------|
 | `power.ts` | Start, stop, restart, force kill VPS |
 | `info.ts` | Service info, plan details, IPs, bandwidth; optional live status (CPU, RAM, disk, uptime) |
-| `snapshots.ts` | Create, list, delete, restore, toggle sticky, export/import snapshots |
-| `backups.ts` | List automatic backups, copy backup to restorable snapshot |
+| `snapshot.ts` | Create, list, delete, restore, toggle sticky, export/import snapshots |
+| `backup.ts` | List automatic backups, copy backup to restorable snapshot |
 | `system.ts` | Set hostname, PTR/rDNS, reset root password, manage SSH keys, list/reinstall OS templates |
 | `network.ts` | Add/delete IPv6 /64 subnets, assign/delete/list private IP addresses |
 | `monitoring.ts` | Audit log, API rate limit status |
@@ -29,8 +29,8 @@ src/tools/            — Tool implementations (Zod schemas + registerTool)
 - **ESM only** — `"type": "module"` in package.json, use `.ts` extension in relative imports
 - **Strict TypeScript** — extends `@tsconfig/strictest`, `@tsconfig/node-lts`, `@tsconfig/node-ts`
 - **API client** — all requests go through `KiwiVMClient.call<T>()`, which handles auth (veid + api_key) and error unwrapping
-- **Tool pattern** — each module exports a `create*Tools(server, client)` function that registers tools via `server.registerTool()` with Zod input schemas
-- **Error handling** — throw `KiwiVMError` for API-level failures; the server handler catches and formats them
+- **Command pattern** — each module exports a `run(action, flags, client)` async function that maps actions to API calls
+- **Error handling** — throw `KiwiVMError` for API-level failures; the CLI entry point catches and formats them
 - **Linting/formatting** — Biome (`npm run lint`, `npm run format`, `npm run check`)
 - **Testing** — vitest, colocated `*.test.ts` files
 - **Build** — tsdown bundler (`npm run build` produces `dist/index.mjs`)
