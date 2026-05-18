@@ -1,33 +1,25 @@
 import type { KiwiVMClient } from "../client.ts";
 
-export async function start(
+export async function usage(
   _args: string[],
   _flags: Record<string, string>,
   client: KiwiVMClient,
 ): Promise<unknown> {
-  return client.call("start");
+  return client.call("getRawUsageStats");
 }
 
-export async function stop(
+export async function audit(
   _args: string[],
   _flags: Record<string, string>,
   client: KiwiVMClient,
 ): Promise<unknown> {
-  return client.call("stop");
+  return client.call("getAuditLog");
 }
 
-export async function restart(
+export async function rateLimit(
   _args: string[],
   _flags: Record<string, string>,
   client: KiwiVMClient,
 ): Promise<unknown> {
-  return client.call("restart");
-}
-
-export async function kill(
-  _args: string[],
-  _flags: Record<string, string>,
-  client: KiwiVMClient,
-): Promise<unknown> {
-  return client.call("kill");
+  return client.call("getRateLimitStatus");
 }

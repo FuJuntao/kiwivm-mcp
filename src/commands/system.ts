@@ -1,29 +1,61 @@
 import type { KiwiVMClient } from "../client.ts";
 
-export async function run(
-  action: string,
-  flags: Record<string, string>,
+export async function hostname(
+  args: string[],
+  _flags: Record<string, string>,
   client: KiwiVMClient,
 ): Promise<unknown> {
-  switch (action) {
-    case "hostname":
-      return client.call("setHostname", { newHostname: flags["newHostname"] });
-    case "rdns":
-      return client.call("setPTR", { ip: flags["ip"], ptr: flags["ptr"] });
-    case "password":
-      return client.call("resetRootPassword");
-    case "sshkey":
-      if (flags["sshKeys"] !== undefined) {
-        return client.call("updateSshKeys", { sshKeys: flags["sshKeys"] });
-      }
-      return client.call("getSshKeys");
-    case "os":
-      return client.call("getAvailableOS");
-    case "reinstall":
-      return client.call("reinstallOS", { os: flags["os"] });
-    default:
-      throw new Error(
-        `Unknown system action: ${action}. Valid: hostname, rdns, password, sshkey, os, reinstall`,
-      );
+  const name = args[0];
+  if (!name) {
+    throw new Error("hostname requires a <name> argument");
   }
+  return client.call("setHostname", { newHostname: name });
+}
+
+export async function password(
+  _args: string[],
+  _flags: Record<string, string>,
+  client: KiwiVMClient,
+): Promise<unknown> {
+  return client.call("resetRootPassword");
+}
+
+export async function osList(
+  _args: string[],
+  _flags: Record<string, string>,
+  client: KiwiVMClient,
+): Promise<unknown> {
+  return client.call("getAvailableOS");
+}
+
+export async function osReinstall(
+  args: string[],
+  _flags: Record<string, string>,
+  client: KiwiVMClient,
+): Promise<unknown> {
+  const os = args[0];
+  if (!os) {
+    throw new Error("os reinstall requires a <template> argument");
+  }
+  return client.call("reinstallOS", { os });
+}
+
+export async function sshKeyShow(
+  _args: string[],
+  _flags: Record<string, string>,
+  client: KiwiVMClient,
+): Promise<unknown> {
+  return client.call("getSshKeys");
+}
+
+export async function sshKeySet(
+  args: string[],
+  _flags: Record<string, string>,
+  client: KiwiVMClient,
+): Promise<unknown> {
+  const keys = args[0];
+  if (!keys) {
+    throw new Error("ssh-key set requires a <keys> argument");
+  }
+  return client.call("updateSshKeys", { ssh_keys: keys });
 }

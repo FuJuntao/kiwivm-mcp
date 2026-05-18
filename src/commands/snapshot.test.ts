@@ -1,44 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 import type { KiwiVMClient } from "../client.ts";
-import { run } from "./snapshot.ts";
+import {
+  create,
+  deleteSnapshot,
+  exportSnapshot,
+  importSnapshot,
+  list,
+  restore,
+  sticky,
+} from "./snapshot.ts";
 
 function mockClient() {
   const call = vi.fn();
   return { client: { call } as unknown as KiwiVMClient, call };
 }
 
-describe("snapshot command", () => {
-  describe("create", () => {
-    it("calls snapshot/create with description flag", async () => {
-      const { client, call } = mockClient();
-      call.mockResolvedValueOnce({ error: 0 });
-
-      const result = await run(
-        "create",
-        { description: "pre-upgrade" },
-        client,
-      );
-
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/create", {
-        description: "pre-upgrade",
-      });
-      expect(result).toEqual({ error: 0 });
-    });
-
-    it("calls snapshot/create without description when flag is omitted", async () => {
-      const { client, call } = mockClient();
-      call.mockResolvedValueOnce({ error: 0 });
-
-      await run("create", {}, client);
-
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/create", {
-        description: undefined,
-      });
-    });
-  });
-
+describe("snapshot handlers", () => {
   describe("list", () => {
-    it("calls snapshot/list", async () => {
+    it("calls client.call('snapshot/list')", async () => {
       const { client, call } = mockClient();
       const snapshots = {
         error: 0,
@@ -58,102 +37,193 @@ describe("snapshot command", () => {
       };
       call.mockResolvedValueOnce(snapshots);
 
-      const result = await run("list", {}, client);
+      const result = await list([], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/list");
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/list");
       expect(result).toEqual(snapshots);
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
+
+      await expect(list([], {}, client)).rejects.toThrow("API failure");
     });
   });
 
-  describe("delete", () => {
-    it("calls snapshot/delete with snapshot flag", async () => {
+  describe("create", () => {
+    it("calls snapshot/create with description flag", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("delete", { snapshot: "snap1" }, client);
+      const result = await create([], { desc: "pre-upgrade" }, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/delete", {
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/create", {
+        description: "pre-upgrade",
+      });
+      expect(result).toEqual({ error: 0 });
+    });
+
+    it("calls snapshot/create with description undefined when flag omitted", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
+
+      await create([], {}, client);
+
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/create", {
+        description: undefined,
+      });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
+
+      await expect(create([], {}, client)).rejects.toThrow("API failure");
+    });
+  });
+
+  describe("deleteSnapshot", () => {
+    it("calls snapshot/delete with snapshot token from args", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
+
+      await deleteSnapshot(["snap1"], {}, client);
+
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/delete", {
         snapshot: "snap1",
       });
+    });
+
+    it("throws when no snapshot token provided", async () => {
+      const { client } = mockClient();
+
+      await expect(deleteSnapshot([], {}, client)).rejects.toThrow(/token/);
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Snapshot not found"));
+
+      await expect(deleteSnapshot(["nonexistent"], {}, client)).rejects.toThrow(
+        "Snapshot not found",
+      );
     });
   });
 
   describe("restore", () => {
-    it("calls snapshot/restore with snapshot flag", async () => {
+    it("calls snapshot/restore with snapshot token from args", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("restore", { snapshot: "snap1" }, client);
+      await restore(["snap1"], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/restore", {
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/restore", {
         snapshot: "snap1",
       });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Snapshot not found"));
+
+      await expect(restore(["nonexistent"], {}, client)).rejects.toThrow(
+        "Snapshot not found",
+      );
     });
   });
 
   describe("sticky", () => {
-    it("calls snapshot/toggleSticky with snapshot and sticky flags", async () => {
+    it("calls snapshot/toggleSticky with sticky=1 when --on flag set", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("sticky", { snapshot: "snap1", sticky: "1" }, client);
+      await sticky(["snap1"], { on: "1" }, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith(
-        "snapshot/toggleSticky",
-        { snapshot: "snap1", sticky: 1 },
-      );
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/toggleSticky", {
+        snapshot: "snap1",
+        sticky: 1,
+      });
     });
 
-    it("converts sticky flag string '0' to number 0", async () => {
+    it("calls snapshot/toggleSticky with sticky=0 when --off flag set", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("sticky", { snapshot: "snap1", sticky: "0" }, client);
+      await sticky(["snap1"], { off: "1" }, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith(
-        "snapshot/toggleSticky",
-        { snapshot: "snap1", sticky: 0 },
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/toggleSticky", {
+        snapshot: "snap1",
+        sticky: 0,
+      });
+    });
+
+    it("throws when neither --on nor --off flag provided", async () => {
+      const { client } = mockClient();
+
+      await expect(sticky(["snap1"], {}, client)).rejects.toThrow("--on");
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
+
+      await expect(sticky(["snap1"], { on: "1" }, client)).rejects.toThrow(
+        "API failure",
       );
     });
   });
 
-  describe("export", () => {
-    it("calls snapshot/export with snapshot flag", async () => {
+  describe("exportSnapshot", () => {
+    it("calls snapshot/export with snapshot token from args", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("export", { snapshot: "snap1" }, client);
+      await exportSnapshot(["snap1"], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/export", {
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/export", {
         snapshot: "snap1",
       });
     });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Export failed"));
+
+      await expect(exportSnapshot(["snap1"], {}, client)).rejects.toThrow(
+        "Export failed",
+      );
+    });
   });
 
-  describe("import", () => {
-    it("calls snapshot/import with sourceVeid and sourceToken", async () => {
+  describe("importSnapshot", () => {
+    it("calls snapshot/import with sourceVeid and sourceToken from args", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run(
-        "import",
-        { sourceVeid: "67890", sourceToken: "abc123" },
-        client,
-      );
+      await importSnapshot(["67890", "abc123"], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("snapshot/import", {
+      expect(call).toHaveBeenCalledExactlyOnceWith("snapshot/import", {
         sourceVeid: "67890",
         sourceToken: "abc123",
       });
     });
-  });
 
-  it("propagates errors from the client", async () => {
-    const { client, call } = mockClient();
-    call.mockRejectedValueOnce(new Error("Snapshot not found"));
+    it("throws when only sourceVeid provided (missing token)", async () => {
+      const { client } = mockClient();
 
-    await expect(
-      run("delete", { snapshot: "nonexistent" }, client),
-    ).rejects.toThrow("Snapshot not found");
+      await expect(importSnapshot(["67890"], {}, client)).rejects.toThrow(
+        /token/i,
+      );
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Import failed"));
+
+      await expect(
+        importSnapshot(["67890", "abc123"], {}, client),
+      ).rejects.toThrow("Import failed");
+    });
   });
 });

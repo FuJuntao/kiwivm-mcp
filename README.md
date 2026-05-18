@@ -36,7 +36,7 @@ npx kiwivm-cli help
 ## Usage
 
 ```bash
-kiwivm-cli <category> <action> [--flags...]
+kiwivm-cli <command> [<subcommand>] [args...] [--flags...]
 ```
 
 ### Examples
@@ -45,53 +45,79 @@ kiwivm-cli <category> <action> [--flags...]
 # Get service info
 kiwivm-cli info
 
-# Get live service info (CPU, RAM, disk, uptime)
-kiwivm-cli info live
+# Get live status (CPU, RAM, disk, uptime)
+kiwivm-cli status
 
 # Power control
-kiwivm-cli power start
-kiwivm-cli power stop
-kiwivm-cli power restart
-kiwivm-cli power kill
+kiwivm-cli start
+kiwivm-cli stop
+kiwivm-cli restart
+kiwivm-cli kill
 
 # Snapshots
 kiwivm-cli snapshot list
-kiwivm-cli snapshot create --description "before update"
-kiwivm-cli snapshot delete --snapshot vsb1234567890
-kiwivm-cli snapshot restore --snapshot vsb1234567890
-kiwivm-cli snapshot sticky --snapshot vsb1234567890 --sticky 1
-kiwivm-cli snapshot import --source-veid 87654321 --source-token token123
+kiwivm-cli snapshot create --desc "before update"
+kiwivm-cli snapshot delete vsb1234567890
+kiwivm-cli snapshot restore vsb1234567890
+kiwivm-cli snapshot sticky vsb1234567890 --on
+kiwivm-cli snapshot export vsb1234567890
+kiwivm-cli snapshot import 87654321 token123
 
 # Backups
 kiwivm-cli backup list
-kiwivm-cli backup copy --backup-token abc123
+kiwivm-cli backup copy abc123
 
 # System
-kiwivm-cli system hostname --new-hostname my-vps
-kiwivm-cli system rdns --ip 1.2.3.4 --ptr my.domain.com
-kiwivm-cli system password
-kiwivm-cli system sshkey
-kiwivm-cli system sshkey --ssh-keys "ssh-ed25519 AAAAC3..."
-kiwivm-cli system os
-kiwivm-cli system reinstall --os "ubuntu-22.04"
+kiwivm-cli hostname my-vps
+kiwivm-cli password
 
-# Network
-kiwivm-cli network ipv6-add
-kiwivm-cli network ipv6-delete --ip 2001:db8::1
-kiwivm-cli network private-list
-kiwivm-cli network private-assign --ip 10.0.0.5
-kiwivm-cli network private-delete --ip 10.0.0.5
+# SSH keys
+kiwivm-cli ssh-key
+kiwivm-cli ssh-key set "ssh-ed25519 AAAAC3..."
 
-# Monitoring
-kiwivm-cli monitoring usage
-kiwivm-cli monitoring audit
-kiwivm-cli monitoring rate-limit
+# OS
+kiwivm-cli os list
+kiwivm-cli os reinstall ubuntu-22.04
+
+# rDNS
+kiwivm-cli rdns set 1.2.3.4 my.domain.com
+
+# IPv6
+kiwivm-cli ipv6 add
+kiwivm-cli ipv6 delete 2001:db8::1
+
+# Private IP
+kiwivm-cli private-ip list
+kiwivm-cli private-ip assign 10.0.0.5
+kiwivm-cli private-ip delete 10.0.0.5
+
+# ISO
+kiwivm-cli iso mount ubuntu-22.04-live
+kiwivm-cli iso unmount
+
+# Shell
+kiwivm-cli shell exec "uptime"
+kiwivm-cli shell script "apt update && apt upgrade -y"
+
+# Migrate
+kiwivm-cli migrate locations
+kiwivm-cli migrate start "Las Vegas"
+kiwivm-cli clone 1.2.3.4 "root-pass" --port 22
+
+# Stats
+kiwivm-cli stats usage
+kiwivm-cli stats audit
+kiwivm-cli stats rate-limit
 
 # Admin
-kiwivm-cli admin suspensions
-kiwivm-cli admin unsuspend --record-id 123
-kiwivm-cli admin resolve
-kiwivm-cli admin resolve-violation --record-id 456
+kiwivm-cli suspensions
+kiwivm-cli unsuspend 123
+kiwivm-cli violations
+kiwivm-cli violations resolve 456
+
+# Notifications
+kiwivm-cli notifications
+kiwivm-cli notifications set '{"1":1,"2":0}'
 ```
 
 Output is JSON to stdout. Errors go to stderr with exit code 1.

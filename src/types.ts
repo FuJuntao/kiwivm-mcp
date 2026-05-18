@@ -16,10 +16,12 @@ export class KiwiVMError extends Error {
 }
 
 export interface ServiceInfo extends KiwiVMResponse {
+  vm_type?: "ovz" | "kvm";
   hostname?: string;
   node_alias?: string;
   node_location?: string;
   location_ipv6_ready?: number;
+  monthly_data_multiplier?: number;
   plan?: string;
   plan_monthly_data?: number;
   plan_disk?: number;
@@ -55,7 +57,6 @@ export interface ServiceInfo extends KiwiVMResponse {
 }
 
 export interface LiveServiceInfo extends ServiceInfo {
-  vm_type?: "ovz" | "kvm";
   vz_status?: Record<string, unknown>;
   vz_quota?: Record<string, unknown>;
   ve_status?: "Starting" | "Running" | "Stopped";
@@ -91,4 +92,59 @@ export interface Backup {
   os: string;
   md5: string;
   timestamp: number;
+}
+
+export interface RateLimitStatus extends KiwiVMResponse {
+  remaining_points_15min: number;
+  remaining_points_24h: number;
+}
+
+export interface SuspensionRecord {
+  record_id: number;
+  flag: string;
+  is_soft: number;
+  evidence_record_id: number;
+  abuse_points: number;
+}
+
+export interface SuspensionDetailsResponse extends KiwiVMResponse {
+  suspension_count: number;
+  total_abuse_points: number;
+  max_abuse_points: number;
+  suspensions: SuspensionRecord[];
+  evidence: Record<string, string>;
+}
+
+export interface PolicyViolation {
+  record_id: number;
+  timestamp: number;
+  suspend_at: number;
+  flag: string;
+  is_soft: number;
+  abuse_points: number;
+  evidence_data: string;
+}
+
+export interface PolicyViolationsResponse extends KiwiVMResponse {
+  total_abuse_points: number;
+  max_abuse_points: number;
+  policy_violations: PolicyViolation[];
+}
+
+export interface NotificationPreference {
+  id: number;
+  name: string;
+  description: string;
+  value: number;
+}
+
+export interface NotificationPreferencesResponse extends KiwiVMResponse {
+  email_preferences: NotificationPreference[];
+  notificationEmail: string;
+}
+
+export interface NotificationSetResponse extends KiwiVMResponse {
+  submitted_email_preferences: Record<string, number>;
+  updated_email_preferences: Record<string, number>;
+  friendly_descriptions: Record<string, string>;
 }

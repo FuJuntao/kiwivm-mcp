@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import type { KiwiVMClient } from "../client.ts";
-import { run } from "./backup.ts";
+import { copy, list } from "./backup.ts";
 
 function mockClient() {
   const call = vi.fn();
   return { client: { call } as unknown as KiwiVMClient, call };
 }
 
-describe("backup command", () => {
+describe("backup handlers", () => {
   describe("list", () => {
-    it("calls backup/list", async () => {
+    it("calls client.call('backup/list')", async () => {
       const { client, call } = mockClient();
       const backups = {
         error: 0,
@@ -25,42 +25,45 @@ describe("backup command", () => {
       };
       call.mockResolvedValueOnce(backups);
 
-      const result = await run("list", {}, client);
+      const result = await list([], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("backup/list");
+      expect(call).toHaveBeenCalledExactlyOnceWith("backup/list");
       expect(result).toEqual(backups);
     });
 
-    it("does not pass any extra params", async () => {
+    it("propagates errors from the client", async () => {
       const { client, call } = mockClient();
-      call.mockResolvedValueOnce({ error: 0, backups: [] });
+      call.mockRejectedValueOnce(new Error("API failure"));
 
-      await run("list", {}, client);
-
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("backup/list");
+      await expect(list([], {}, client)).rejects.toThrow("API failure");
     });
   });
 
   describe("copy", () => {
-    it("calls backup/copyToSnapshot with backupToken", async () => {
+    it("calls backup/copyToSnapshot with backup token from args", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("copy", { backupToken: "tok1" }, client);
+      await copy(["abc123"], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith(
-        "backup/copyToSnapshot",
-        { backupToken: "tok1" },
+      expect(call).toHaveBeenCalledExactlyOnceWith("backup/copyToSnapshot", {
+        backupToken: "abc123",
+      });
+    });
+
+    it("throws when no backup token provided", async () => {
+      const { client } = mockClient();
+
+      await expect(copy([], {}, client)).rejects.toThrow("token");
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Backup not found"));
+
+      await expect(copy(["bad"], {}, client)).rejects.toThrow(
+        "Backup not found",
       );
     });
-  });
-
-  it("propagates errors from the client", async () => {
-    const { client, call } = mockClient();
-    call.mockRejectedValueOnce(new Error("Backup not found"));
-
-    await expect(run("copy", { backupToken: "bad" }, client)).rejects.toThrow(
-      "Backup not found",
-    );
   });
 });

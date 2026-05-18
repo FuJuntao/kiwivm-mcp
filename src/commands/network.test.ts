@@ -1,85 +1,162 @@
 import { describe, expect, it, vi } from "vitest";
 import type { KiwiVMClient } from "../client.ts";
-import { run } from "./network.ts";
+import {
+  ipv6Add,
+  ipv6Delete,
+  privateIpAssign,
+  privateIpDelete,
+  privateIpList,
+  rdnsSet,
+} from "./network.ts";
 
 function mockClient() {
   const call = vi.fn();
   return { client: { call } as unknown as KiwiVMClient, call };
 }
 
-describe("network command", () => {
-  describe("ipv6-add", () => {
+describe("network handlers", () => {
+  describe("rdnsSet", () => {
+    it("calls setPTR with ip and ptr from args", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
+
+      await rdnsSet(["1.2.3.4", "my.domain.com"], {}, client);
+
+      expect(call).toHaveBeenCalledExactlyOnceWith("setPTR", {
+        ip: "1.2.3.4",
+        ptr: "my.domain.com",
+      });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Invalid PTR"));
+
+      await expect(
+        rdnsSet(["1.2.3.4", "my.domain.com"], {}, client),
+      ).rejects.toThrow("Invalid PTR");
+    });
+  });
+
+  describe("ipv6Add", () => {
     it("calls ipv6/add with no extra params", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      const result = await run("ipv6-add", {}, client);
+      const result = await ipv6Add([], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("ipv6/add");
+      expect(call).toHaveBeenCalledExactlyOnceWith("ipv6/add");
       expect(result).toEqual({ error: 0 });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("IPv6 not available"));
+
+      await expect(ipv6Add([], {}, client)).rejects.toThrow(
+        "IPv6 not available",
+      );
     });
   });
 
-  describe("ipv6-delete", () => {
-    it("calls ipv6/delete with ip flag", async () => {
+  describe("ipv6Delete", () => {
+    it("calls ipv6/delete with ip from args", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("ipv6-delete", { ip: "2001:db8::1" }, client);
+      await ipv6Delete(["2001:db8::1"], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("ipv6/delete", {
+      expect(call).toHaveBeenCalledExactlyOnceWith("ipv6/delete", {
         ip: "2001:db8::1",
       });
     });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Invalid IP"));
+
+      await expect(ipv6Delete(["2001:db8::1"], {}, client)).rejects.toThrow(
+        "Invalid IP",
+      );
+    });
   });
 
-  describe("private-list", () => {
+  describe("privateIpList", () => {
     it("calls privateIp/getAvailableIps", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({
         error: 0,
-        availableIps: ["10.0.0.1"],
+        availableIps: ["10.0.0.1", "10.0.0.2"],
       });
 
-      const result = await run("private-list", {}, client);
+      const result = await privateIpList([], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith(
-        "privateIp/getAvailableIps",
+      expect(call).toHaveBeenCalledExactlyOnceWith("privateIp/getAvailableIps");
+      expect(result).toMatchObject({ availableIps: ["10.0.0.1", "10.0.0.2"] });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Private IP not available"));
+
+      await expect(privateIpList([], {}, client)).rejects.toThrow(
+        "Private IP not available",
       );
-      expect(result).toMatchObject({ availableIps: ["10.0.0.1"] });
     });
   });
 
-  describe("private-assign", () => {
-    it("calls privateIp/assign with ip flag", async () => {
+  describe("privateIpAssign", () => {
+    it("calls privateIp/assign with ip from args", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("private-assign", { ip: "10.0.0.1" }, client);
+      await privateIpAssign(["10.0.0.5"], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("privateIp/assign", {
-        ip: "10.0.0.1",
+      expect(call).toHaveBeenCalledExactlyOnceWith("privateIp/assign", {
+        ip: "10.0.0.5",
       });
     });
-  });
 
-  describe("private-delete", () => {
-    it("calls privateIp/delete with ip flag", async () => {
+    it("calls privateIp/assign with undefined ip when no arg", async () => {
       const { client, call } = mockClient();
       call.mockResolvedValueOnce({ error: 0 });
 
-      await run("private-delete", { ip: "10.0.0.1" }, client);
+      await privateIpAssign([], {}, client);
 
-      expect(client.call).toHaveBeenCalledExactlyOnceWith("privateIp/delete", {
-        ip: "10.0.0.1",
+      expect(call).toHaveBeenCalledExactlyOnceWith("privateIp/assign", {
+        ip: undefined,
       });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Assignment failed"));
+
+      await expect(privateIpAssign(["10.0.0.5"], {}, client)).rejects.toThrow(
+        "Assignment failed",
+      );
     });
   });
 
-  it("propagates errors from the client", async () => {
-    const { client, call } = mockClient();
-    call.mockRejectedValueOnce(new Error("Invalid IP"));
+  describe("privateIpDelete", () => {
+    it("calls privateIp/delete with ip from args", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
 
-    await expect(run("ipv6-add", {}, client)).rejects.toThrow("Invalid IP");
+      await privateIpDelete(["10.0.0.5"], {}, client);
+
+      expect(call).toHaveBeenCalledExactlyOnceWith("privateIp/delete", {
+        ip: "10.0.0.5",
+      });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("Delete failed"));
+
+      await expect(privateIpDelete(["10.0.0.5"], {}, client)).rejects.toThrow(
+        "Delete failed",
+      );
+    });
   });
 });

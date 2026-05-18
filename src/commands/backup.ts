@@ -1,23 +1,21 @@
 import type { KiwiVMClient } from "../client.ts";
-import type { Backup, KiwiVMResponse } from "../types.ts";
 
-interface BackupListResponse extends KiwiVMResponse {
-  backups: Backup[];
-}
-
-export async function run(
-  action: string,
-  flags: Record<string, string>,
+export async function list(
+  _args: string[],
+  _flags: Record<string, string>,
   client: KiwiVMClient,
 ): Promise<unknown> {
-  switch (action) {
-    case "list":
-      return client.call<BackupListResponse>("backup/list");
-    case "copy":
-      return client.call("backup/copyToSnapshot", {
-        backupToken: flags["backupToken"],
-      });
-    default:
-      throw new Error(`Unknown backup action: ${action}. Valid: list, copy`);
+  return client.call("backup/list");
+}
+
+export async function copy(
+  args: string[],
+  _flags: Record<string, string>,
+  client: KiwiVMClient,
+): Promise<unknown> {
+  const token = args[0];
+  if (!token) {
+    throw new Error("backup copy requires a <token> argument");
   }
+  return client.call("backup/copyToSnapshot", { backupToken: token });
 }

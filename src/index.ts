@@ -1,7 +1,30 @@
 #!/usr/bin/env node
 
 import { KiwiVMClient } from "./client.ts";
+import * as admin from "./commands/admin.ts";
+import * as backup from "./commands/backup.ts";
+import * as help from "./commands/help.ts";
+import * as info from "./commands/info.ts";
+import * as iso from "./commands/iso.ts";
+import * as migrate from "./commands/migrate.ts";
+import * as network from "./commands/network.ts";
+import * as power from "./commands/power.ts";
+import * as shell from "./commands/shell.ts";
+import * as snapshot from "./commands/snapshot.ts";
+import * as stats from "./commands/stats.ts";
+import * as system from "./commands/system.ts";
 import { KiwiVMError } from "./types.ts";
+
+type Handler = (
+  args: string[],
+  flags: Record<string, string>,
+  client: KiwiVMClient,
+) => Promise<unknown>;
+
+interface SubcommandRoutes {
+  default?: Handler;
+  [subcommand: string]: Handler | undefined;
+}
 
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
@@ -20,9 +43,8 @@ function parseFlags(args: string[]): Record<string, string> {
         flags[toCamelCase(key)] = next;
         i++;
       } else {
-        // --flag with no value (treat as boolean/empty string)
         const key = arg.slice(2);
-        flags[toCamelCase(key)] = "";
+        flags[toCamelCase(key)] = "1";
       }
     }
   }
@@ -30,7 +52,6 @@ function parseFlags(args: string[]): Record<string, string> {
 }
 
 function toCamelCase(key: string): string {
-  // Known mappings: kebab-case flags that need camelCase API param names
   const known: Record<string, string> = {
     "backup-token": "backupToken",
     "new-hostname": "newHostname",
@@ -43,7 +64,6 @@ function toCamelCase(key: string): string {
   };
   if (known[key]) return known[key];
 
-  // Default: convert --some-flag to someFlag
   return key.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
 }
 
@@ -70,18 +90,13 @@ async function main() {
   const args = process.argv.slice(2);
   const { positional, flags } = getCommandFromArgs(args);
 
-  const category = positional[0] ?? "";
-  const action = positional[1] ?? "";
+  const command = positional[0] ?? "";
 
-  // Handle help before auth (no credentials needed)
-  if (category === "" || category === "help") {
-    const { run } = await import("./commands/help.ts");
-    const text = await run();
-    console.log(text as string);
+  if (command === "" || command === "help") {
+    console.log(await help.run());
     return;
   }
 
-  // Resolve auth: flags first, then env vars
   const flagVeid = flags["veid"];
   const flagApiKey = flags["apiKey"];
   const resolvedVeid = flagVeid || process.env["KIWIVM_VEID"];
@@ -94,7 +109,6 @@ async function main() {
     process.exit(1);
   }
 
-  // Strip auth flags before passing to handlers
   const handlerFlags = { ...flags };
   delete handlerFlags["veid"];
   delete handlerFlags["apiKey"];
@@ -107,52 +121,111 @@ async function main() {
   try {
     let result: unknown;
 
-    switch (category) {
-      case "power": {
-        const { run } = await import("./commands/power.ts");
-        result = await run(action, handlerFlags, client);
-        break;
+    const ROUTES: Record<string, Handler | SubcommandRoutes> = {
+      start: power.start,
+      stop: power.stop,
+      restart: power.restart,
+      kill: power.kill,
+      info: info.info,
+      status: info.status,
+      hostname: system.hostname,
+      password: system.password,
+      suspensions: admin.suspensions,
+      unsuspend: admin.unsuspend,
+      clone: migrate.clone,
+
+      snapshot: {
+        list: snapshot.list,
+        create: snapshot.create,
+        delete: snapshot.deleteSnapshot,
+        restore: snapshot.restore,
+        sticky: snapshot.sticky,
+        export: snapshot.exportSnapshot,
+        import: snapshot.importSnapshot,
+      },
+      backup: {
+        list: backup.list,
+        copy: backup.copy,
+      },
+      os: {
+        list: system.osList,
+        reinstall: system.osReinstall,
+      },
+      "ssh-key": {
+        default: system.sshKeyShow,
+        set: system.sshKeySet,
+      },
+      rdns: {
+        set: network.rdnsSet,
+      },
+      ipv6: {
+        add: network.ipv6Add,
+        delete: network.ipv6Delete,
+      },
+      "private-ip": {
+        list: network.privateIpList,
+        assign: network.privateIpAssign,
+        delete: network.privateIpDelete,
+      },
+      iso: {
+        mount: iso.mount,
+        unmount: iso.unmount,
+      },
+      shell: {
+        exec: shell.exec,
+        script: shell.script,
+      },
+      migrate: {
+        locations: migrate.locations,
+        start: migrate.migrateStart,
+      },
+      stats: {
+        usage: stats.usage,
+        audit: stats.audit,
+        "rate-limit": stats.rateLimit,
+      },
+      violations: {
+        default: admin.violationsList,
+        resolve: admin.violationsResolve,
+      },
+      notifications: {
+        default: admin.notificationsGet,
+        set: admin.notificationsSet,
+      },
+    };
+
+    const route = ROUTES[command];
+
+    if (!route) {
+      console.error(`Unknown command: ${command}`);
+      console.error("Run 'kiwivm-cli help' for usage.");
+      process.exit(1);
+    }
+
+    if (typeof route === "function") {
+      result = await route(positional.slice(1), handlerFlags, client);
+    } else {
+      const subcommand = positional[1];
+      let handler: Handler | undefined;
+
+      if (subcommand && subcommand in route) {
+        handler = route[subcommand];
+      } else if (!subcommand && route.default) {
+        handler = route.default;
       }
-      case "info": {
-        const { run } = await import("./commands/info.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      case "snapshot": {
-        const { run } = await import("./commands/snapshot.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      case "backup": {
-        const { run } = await import("./commands/backup.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      case "system": {
-        const { run } = await import("./commands/system.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      case "network": {
-        const { run } = await import("./commands/network.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      case "monitoring": {
-        const { run } = await import("./commands/monitoring.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      case "admin": {
-        const { run } = await import("./commands/admin.ts");
-        result = await run(action, handlerFlags, client);
-        break;
-      }
-      default: {
-        console.error(`Unknown category: ${category}`);
-        console.error("Run 'kiwivm-cli help' for usage.");
+
+      if (!handler) {
+        const valid = Object.keys(route)
+          .filter((k) => k !== "default")
+          .join(", ");
+        const sc = subcommand || "(none)";
+        console.error(
+          `Unknown subcommand for ${command}: ${sc}. Valid: ${valid}`,
+        );
         process.exit(1);
       }
+
+      result = await handler(positional.slice(2), handlerFlags, client);
     }
 
     console.log(JSON.stringify(result));
@@ -166,7 +239,6 @@ async function main() {
 
 export { main };
 
-// Only auto-run when executed directly (not when imported by tests)
 if (!process.env["VITEST"]) {
   main();
 }

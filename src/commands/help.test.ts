@@ -14,18 +14,38 @@ describe("help command", () => {
     expect(result).toContain("kiwivm-cli");
   });
 
-  it("lists available command categories", async () => {
+  it("lists key command names in help text", async () => {
     const result = await run();
 
-    // Spot-check a few categories
-    expect(result).toContain("power");
+    // Flat commands
+    expect(result).toContain("start");
+    expect(result).toContain("stop");
     expect(result).toContain("info");
+    expect(result).toContain("status");
+    // Subcommand categories
     expect(result).toContain("snapshot");
     expect(result).toContain("backup");
-    expect(result).toContain("system");
-    expect(result).toContain("network");
-    expect(result).toContain("monitoring");
-    expect(result).toContain("admin");
+    // System actions
+    expect(result).toContain("os");
+    expect(result).toContain("hostname");
+    expect(result).toContain("password");
+    expect(result).toContain("ssh-key");
+    // Network
+    expect(result).toContain("rdns");
+    expect(result).toContain("ipv6");
+    expect(result).toContain("private-ip");
+    // New categories
+    expect(result).toContain("iso");
+    expect(result).toContain("shell");
+    expect(result).toContain("migrate");
+    expect(result).toContain("clone");
+    // Stats
+    expect(result).toContain("stats");
+    // Admin
+    expect(result).toContain("suspensions");
+    expect(result).toContain("unsuspend");
+    expect(result).toContain("violations");
+    expect(result).toContain("notifications");
   });
 
   it("mentions global flags --veid and --api-key", async () => {

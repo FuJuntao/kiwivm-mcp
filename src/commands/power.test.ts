@@ -1,68 +1,86 @@
 import { describe, expect, it, vi } from "vitest";
 import type { KiwiVMClient } from "../client.ts";
-import { run } from "./power.ts";
+import { kill, restart, start, stop } from "./power.ts";
 
 function mockClient() {
   const call = vi.fn();
   return { client: { call } as unknown as KiwiVMClient, call };
 }
 
-describe("power command", () => {
-  it("start calls client.call('start')", async () => {
-    const { client, call } = mockClient();
-    call.mockResolvedValueOnce({ error: 0 });
+describe("power handlers", () => {
+  describe("start", () => {
+    it("calls client.call('start')", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
 
-    const result = await run("start", {}, client);
+      const result = await start([], {}, client);
 
-    expect(client.call).toHaveBeenCalledExactlyOnceWith("start");
-    expect(result).toEqual({ error: 0 });
+      expect(call).toHaveBeenCalledExactlyOnceWith("start");
+      expect(result).toEqual({ error: 0 });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
+
+      await expect(start([], {}, client)).rejects.toThrow("API failure");
+    });
   });
 
-  it("stop calls client.call('stop')", async () => {
-    const { client, call } = mockClient();
-    call.mockResolvedValueOnce({ error: 0 });
+  describe("stop", () => {
+    it("calls client.call('stop')", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
 
-    const result = await run("stop", {}, client);
+      const result = await stop([], {}, client);
 
-    expect(client.call).toHaveBeenCalledExactlyOnceWith("stop");
-    expect(result).toEqual({ error: 0 });
+      expect(call).toHaveBeenCalledExactlyOnceWith("stop");
+      expect(result).toEqual({ error: 0 });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
+
+      await expect(stop([], {}, client)).rejects.toThrow("API failure");
+    });
   });
 
-  it("restart calls client.call('restart')", async () => {
-    const { client, call } = mockClient();
-    call.mockResolvedValueOnce({ error: 0 });
+  describe("restart", () => {
+    it("calls client.call('restart')", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
 
-    const result = await run("restart", {}, client);
+      const result = await restart([], {}, client);
 
-    expect(client.call).toHaveBeenCalledExactlyOnceWith("restart");
-    expect(result).toEqual({ error: 0 });
+      expect(call).toHaveBeenCalledExactlyOnceWith("restart");
+      expect(result).toEqual({ error: 0 });
+    });
+
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
+
+      await expect(restart([], {}, client)).rejects.toThrow("API failure");
+    });
   });
 
-  it("kill calls client.call('kill')", async () => {
-    const { client, call } = mockClient();
-    call.mockResolvedValueOnce({ error: 0 });
+  describe("kill", () => {
+    it("calls client.call('kill')", async () => {
+      const { client, call } = mockClient();
+      call.mockResolvedValueOnce({ error: 0 });
 
-    const result = await run("kill", {}, client);
+      const result = await kill([], {}, client);
 
-    expect(client.call).toHaveBeenCalledExactlyOnceWith("kill");
-    expect(result).toEqual({ error: 0 });
-  });
+      expect(call).toHaveBeenCalledExactlyOnceWith("kill");
+      expect(result).toEqual({ error: 0 });
+    });
 
-  it("returns the raw API response", async () => {
-    const { client, call } = mockClient();
-    const apiResponse = { error: 0, message: "Virtual server is running." };
-    call.mockResolvedValueOnce(apiResponse);
+    it("propagates errors from the client", async () => {
+      const { client, call } = mockClient();
+      call.mockRejectedValueOnce(new Error("API failure"));
 
-    const result = await run("start", {}, client);
-
-    expect(result).toBe(apiResponse);
-  });
-
-  it("propagates errors from the client", async () => {
-    const { client, call } = mockClient();
-    const apiError = new Error("API failure");
-    call.mockRejectedValueOnce(apiError);
-
-    await expect(run("restart", {}, client)).rejects.toThrow("API failure");
+      await expect(kill([], {}, client)).rejects.toThrow("API failure");
+    });
   });
 });
